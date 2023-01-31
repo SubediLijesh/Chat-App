@@ -3,6 +3,9 @@ import 'package:flash_chat/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+final firestore = FirebaseFirestore.instance;
+User loggedInUser;
+
 class ChatScreen extends StatefulWidget {
   static String id = 'chat_screen';
 
@@ -11,9 +14,8 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final messageTextController = TextEditingController();
   final _auth = FirebaseAuth.instance;
-  final firestore = FirebaseFirestore.instance;
-  User loggedInUser;
   String messageText;
 
   @override
@@ -72,35 +74,7 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            StreamBuilder<QuerySnapshot>(
-              stream: firestore.collection('messages').snapshots(),
-              builder: ((context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                }
-                final messages = snapshot.data.docs;
-                List<MessageBubble> messagesBubbles = [];
-                for (var message in messages) {
-                  final messageText = message.get('text');
-                  final messageSender = message.get('sender');
-
-                  final messagesBubble = MessageBubble(sender: messageSender,text:messageText);
-                      // Text('$messageText from $messageSender');
-                      messagesBubbles.add(messagesBubble);
-                }
-                return Expanded(
-                  child: ListView(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-                    children: messagesBubbles,
-                  ),
-                );
-              }),
-            ),
+            MessageStream(),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
@@ -108,6 +82,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: <Widget>[
                   Expanded(
                     child: TextField(
+                      controller: messageTextController,
                       onChanged: (value) {
                         messageText = value;
                       },
@@ -116,6 +91,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   TextButton(
                     onPressed: () {
+                      messageTextController.clear();
                       firestore.collection('messages').add({
                         'text': messageText,
                         'sender': loggedInUser.email,
@@ -134,31 +110,91 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
+
+  StreamBuilder<QuerySnapshot<Object>> MessageStream() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: firestore.collection('messages').snapshots(),
+      builder: ((context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+        final messages = snapshot.data.docs.reversed;
+        List<MessageBubble> messagesBubbles = [];
+        for (var message in messages) {
+          final messageText = message.get('text');
+          final messageSender = message.get('sender');
+
+          final User=loggedInUser.email;
+
+          if(User==messageSender){
+
+          }
+
+          final messagesBubble =
+              MessageBubble(sender: messageSender, text: messageText,isme: User==messageSender,);
+          // Text('$messageText from $messageSender');
+          messagesBubbles.add(messagesBubble);
+        }
+        return Expanded(
+          child: ListView(
+            reverse: true,
+            padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+            children: messagesBubbles,
+          ),
+        );
+      }),
+    );
+  }
 }
 
 class MessageBubble extends StatelessWidget {
   // const messageBubble({Key key}) : super(key: key);
 
-  MessageBubble({this.sender, this.text});
+  MessageBubble({this.sender, this.text,this.isme});
   final String sender;
   final String text;
+  final bool isme;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Material(
-        elevation: 5.0,
-        color: Colors.lightBlueAccent,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            '$text from $sender',
+      child: Column(
+        crossAxisAlignment:isme ?  CrossAxisAlignment.end:CrossAxisAlignment.start,
+        children: [
+          Text(
+            sender,
             style: TextStyle(
-              fontSize: 16.0,
-            color: Colors.white),
+              fontSize: 12.0,
+            ),
           ),
-        ),
+          Material(
+            borderRadius:isme ? BorderRadius.only(
+              topLeft: Radius.circular(30.0),
+              bottomLeft: Radius.circular(30.0),
+              bottomRight: Radius.circular(30.0),
+            ):BorderRadius.only(
+              bottomLeft: Radius.circular(30.0),
+              bottomRight: Radius.circular(30.0),
+              topRight: Radius.circular(30.0),
+            ),
+            elevation: 5.0,
+            color: isme  ? Colors.lightBlueAccent:Colors.white,
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+              child: Text(
+                '$text',
+                style: TextStyle(fontSize: 16.0,
+                color: isme ? Colors.white:Colors.black54),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
