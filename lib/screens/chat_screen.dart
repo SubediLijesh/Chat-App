@@ -83,19 +83,20 @@ class _ChatScreenState extends State<ChatScreen> {
                   );
                 }
                 final messages = snapshot.data.docs;
-                List<Text> messagesWidgets = [];
+                List<MessageBubble> messagesBubbles = [];
                 for (var message in messages) {
                   final messageText = message.get('text');
                   final messageSender = message.get('sender');
 
-                  final messagesWidget =
-                      Text('$messageText from $messageSender');
-                  messagesWidgets.add(messagesWidget);
+                  final messagesBubble = MessageBubble(sender: messageSender,text:messageText);
+                      // Text('$messageText from $messageSender');
+                      messagesBubbles.add(messagesBubble);
                 }
                 return Expanded(
                   child: ListView(
-                    padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
-                    children: messagesWidgets,
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+                    children: messagesBubbles,
                   ),
                 );
               }),
@@ -129,6 +130,34 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class MessageBubble extends StatelessWidget {
+  // const messageBubble({Key key}) : super(key: key);
+
+  MessageBubble({this.sender, this.text});
+  final String sender;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Material(
+        elevation: 5.0,
+        color: Colors.lightBlueAccent,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            '$text from $sender',
+            style: TextStyle(
+              fontSize: 16.0,
+            color: Colors.white),
+          ),
         ),
       ),
     );
