@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "810138498092",
+    "project_id": "chatappify",
+    "storage_bucket": "chatappify.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:810138498092:android:c1a5407e59767e31b44d89",
+        "android_client_info": {
+          "package_name": "com.lijesh.flash_chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "810138498092-6dsp3amaqa685f7b2aipsu8u3c99ijp2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDECpadaozItMX45A2ksL8BsBToFVxEKDw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "810138498092-6dsp3amaqa685f7b2aipsu8u3c99ijp2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
